@@ -1,16 +1,16 @@
 // 1. Import necessary types from express
 import { Request, Response } from "express";
-
-let TODOS = [
-  { id: 1, name: "Learn TypeScript", completed: false },
-  { id: 2, name: "Build an Express app", completed: false },
-];
+/// import db from "../lib/knex";
+// 2. Import the database connection
+import db from "../lib/knex";
 
 const GetTodos = async (req: Request, res: Response) => {
+  // 3. Fetch all todos from the database
+  const Todos = await db("Todo").select("*");
   return res.json({
     success: true,
     message: "Get Todos",
-    data: TODOS,
+    data: Todos,
   });
 };
 const AddTodo = async (req: Request, res: Response) => {
@@ -26,32 +26,27 @@ const AddTodo = async (req: Request, res: Response) => {
       message: "Name is required",
     });
   }
-  const newTodo = {
-    id: TODOS.length + 1,
-    name: req.body.name,
-    completed: false,
-  };
-  TODOS.push(newTodo);
+  const { name } = req.body;
+  // 4. Insert the new todo into the database
+  await db("Todo").insert({ name: name });
 
   return res.json({
     success: true,
-    message: "Get Todos",
-    data: TODOS,
+    message: "Task Added Successfully",
   });
 };
 const DeleteTodo = async (req: Request, res: Response) => {
   const todoId = parseInt(req.params.id, 10);
-  TODOS = TODOS.filter((todo) => todo.id !== todoId);
+  await db("Todo").where({ id: todoId }).del();
   return res.json({
     success: true,
     message: "Todo deleted successfully",
-    data: TODOS,
   });
 };
 const EditTodo = async (req: Request, res: Response) => {
   const todoId = parseInt(req.params.id, 10);
   const { name } = req.body;
-  const TodoExists = TODOS.find((todo) => todo.id === todoId);
+  const TodoExists = await db("Todo").where({ id: todoId }).first(); // 1
   if (!TodoExists) {
     return res.status(404).json({
       success: false,
@@ -64,12 +59,10 @@ const EditTodo = async (req: Request, res: Response) => {
       message: "Name is required",
     });
   }
-  const updatedTodo = { ...TodoExists, name: name };
-  TODOS = TODOS.map((todo) => (todo.id === todoId ? updatedTodo : todo));
+  await db("Todo").where({ id: todoId }).update({ name: name }); // 2
   return res.json({
     success: true,
     message: "Todo updated successfully",
-    data: TODOS,
   });
 };
 

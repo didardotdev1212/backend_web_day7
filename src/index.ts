@@ -1,3 +1,4 @@
+import "dotenv/config"; /// to load the environment variables from the .env file
 // 1. Import necessary modules
 import express from "express";
 import TodoRoutes from "./Routes/Todos";
