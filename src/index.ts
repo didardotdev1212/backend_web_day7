@@ -2,8 +2,13 @@ import "dotenv/config"; /// to load the environment variables from the .env file
 // 1. Import necessary modules
 import express from "express";
 import TodoRoutes from "./Routes/Todos";
+/// import cors
+import cors from "cors";
 // 2. Create an instance of the express application
 const app = express();
+
+// use cors
+app.use(cors());
 
 // 3. Use middleware to parse JSON request bodies
 app.use(express.json());
